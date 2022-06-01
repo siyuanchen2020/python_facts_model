@@ -31,7 +31,7 @@ class BasicEnv(gym.Env):
     def __init__(self):
         self.action_space = spaces.Discrete(6)
         #self.observation_space = spaces.Discrete(1000)
-        self.observation_space = spaces.Box(0, 255, [10, 10, 15])
+        self.observation_space = spaces.Box(0, 255, [10, 10, 14])
 
 
     def step(self, action):
