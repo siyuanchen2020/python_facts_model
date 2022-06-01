@@ -30,7 +30,9 @@ class BasicEnv(gym.Env):
 
     def __init__(self):
         self.action_space = spaces.Discrete(6)
-        self.observation_space = spaces.Discrete(1000)
+        #self.observation_space = spaces.Discrete(1000)
+        self.observation_space = spaces.Box(0, 255, [10, 10, 15])
+
 
     def step(self, action):
         # if we took an action, we were in state 1
@@ -55,7 +57,7 @@ class BasicEnv(gym.Env):
             print('State ID=', row[0], ' Station ID=', row[1], ' Action Rule=', action)
         else:
             # print('state_file not exist')
-            time.sleep(0.15)
+            time.sleep(0.2)
             #print("file is not open")
 
 
@@ -67,15 +69,31 @@ class BasicEnv(gym.Env):
         #print(state_final_line)
 
         #state = stationID
-        state = state_final_line[1]
+        #state = state_final_line[1]
+        #state = numpy.array(state_final_line[1], state_final_line[2]).astype(numpy.float32)
+        state = numpy.array([state_final_line[1], state_final_line[2],state_final_line[3], state_final_line[4], state_final_line[5], state_final_line[6],
+                             state_final_line[8],state_final_line[9], state_final_line[10],
+                             state_final_line[11], state_final_line[12], state_final_line[13], state_final_line[14], state_final_line[15]])
+
+        #state = numpy.array([state_final_line[1], state_final_line[2], state_final_line[3]])
+
         LeadTime = state_final_line[-2]
         LeadTime = float(LeadTime)
 
         tardiness = state_final_line[-1]
         tardiness = float(tardiness)
 
+        #reward = - tardiness
+
+
         #normalize LeadTime
-        LT_nor = - (LeadTime - 51435.777)
+        #LT_nor = - (LeadTime - 51435.777)
+
+        #new normalization
+
+        #LT_nor = - (LeadTime - 40000) only for leadtime9, wrong test
+
+        LT_nor = - (LeadTime - 53000)
 
         reward = LT_nor
 
@@ -144,16 +162,16 @@ class SaveOnBestTrainingRewardCallback(BaseCallback):
         return True
 
 #set log directory
-log_dir = "/tmp/gym/facts/test1"
+log_dir = "/tmp/gym/facts/exe1"
 if not os.path.exists(log_dir):
     os.makedirs(log_dir)
 # monitor the environment
 env = Monitor(env, log_dir)
 
 
-model = DQN("MlpPolicy", env, verbose=1,tensorboard_log=log_dir,learning_rate= 0.2, learning_starts=10000)
+model = DQN("MlpPolicy", env, verbose=1,tensorboard_log=log_dir,learning_rate= 0.2, learning_starts=5000)
 callback = SaveOnBestTrainingRewardCallback(check_freq=100, log_dir=log_dir)
-timesteps = 40000
+timesteps = 10000
 model.learn(total_timesteps=timesteps, callback=callback)
 
 plot_results([log_dir], timesteps, results_plotter.X_TIMESTEPS, "facts_model_plot")
@@ -161,7 +179,7 @@ plt.savefig('test1')
 plt.show()
 
 
-#predict
+"""#predict
 obs = env.reset()
 
 #check how the model runs
@@ -171,5 +189,5 @@ for i in range(100):
     obs, reward, done, info = env.step(action)
     env.render()
     if done:
-      obs = env.reset()
+      obs = env.reset()"""
 

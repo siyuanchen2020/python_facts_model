@@ -16,7 +16,8 @@ from stable_baselines3.common.results_plotter import load_results, ts2xy, plot_r
 from stable_baselines3.common.evaluation import evaluate_policy
 from stable_baselines3.common.env_checker import check_env
 from stable_baselines3.common.callbacks import BaseCallback
-import torch
+
+
 
 
 state_path = 'C:\\Facts\\Developer\\DQN-Dispatcher\\dqn_state_file.csv'
@@ -60,27 +61,16 @@ class BasicEnv(gym.Env):
 
 
         with open('C:\\Facts\\Developer\\DQN-Dispatcher\\state_log.csv', "r") as scraped:
-            lines = scraped.readlines()
-            count = len(lines)
-
-            #print(count)
-            if count > 2:
-                state_final_line = lines[-1]
-                state_final_line2 = lines[-2]
-                state_final_line2 = state_final_line2.split(';')
-                LeadTime_pre = float(state_final_line2[-2])
-                tardiness_pre = float(state_final_line2[-1])
-            else:
-                state_final_line = lines[-1]
-                LeadTime_pre = 0
-                tardiness_pre = 0
+            state_final_line = scraped.readlines()[-1]
             #print(state_final_line)
             scraped.close()
         state_final_line = state_final_line.split(';')
         #print(state_final_line)
 
-        #state = stationID
-        state = state_final_line[1]
+        #state = line B to line P
+        state = numpy.array(state_final_line[1:16])
+        print(state)
+
         LeadTime = state_final_line[-2]
         LeadTime = float(LeadTime)
 
@@ -90,30 +80,13 @@ class BasicEnv(gym.Env):
         #normalize LeadTime
         #LT_nor = - (LeadTime - 51435.777)
 
-        LT_diff = LeadTime - LeadTime_pre
-        tar_diff = tardiness - tardiness_pre
-        if LT_diff < 0:
-            if tar_diff < 0:
-                reward = 2
-            elif tar_diff == 0:
-                reward = 1
-            else:
-                reward = 0
-        elif LT_diff == 0:
-            if tar_diff < 0:
-                reward = 1
-            elif tar_diff == 0:
-                reward = -1
-            else:
-                reward = -2
-        else:
-            if tar_diff < 0:
-                reward = 0
-            elif tar_diff == 0:
-                reward = -1
-            else:
-                reward = -2
+        #new normalization
 
+        #LT_nor = - (LeadTime - 40000) only for leadtime9, wrong test
+
+        LT_nor = - (LeadTime - 53000)
+
+        reward = LT_nor
 
         # regardless of the action, game is done after a single step
         done = True
@@ -179,22 +152,21 @@ class SaveOnBestTrainingRewardCallback(BaseCallback):
         return True
 
 #set log directory
-log_dir = "/tmp/gym/facts/multi"
+log_dir = "/tmp/gym/facts/test3"
 if not os.path.exists(log_dir):
     os.makedirs(log_dir)
 # monitor the environment
 env = Monitor(env, log_dir)
 
 
-model = DQN("MlpPolicy", env, verbose=1,tensorboard_log=log_dir,learning_rate= 0.2, learning_starts=8000,device='cuda')
-
+model = DQN("MlpPolicy", env, verbose=1,tensorboard_log=log_dir,learning_rate= 0.2, learning_starts=100)
 callback = SaveOnBestTrainingRewardCallback(check_freq=100, log_dir=log_dir)
-timesteps = 40000
+timesteps = 500
 model.learn(total_timesteps=timesteps, callback=callback)
 
-plot_results([log_dir], timesteps, results_plotter.X_TIMESTEPS, "facts_model_plot")
-plt.savefig('test1')
-plt.show()
+#plot_results([log_dir], timesteps, results_plotter.X_TIMESTEPS, "facts_model_plot")
+#plt.savefig('test1')
+#plt.show()
 
 
 #predict
