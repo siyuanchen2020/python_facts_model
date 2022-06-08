@@ -31,7 +31,7 @@ class BasicEnv(gym.Env):
     def __init__(self):
         self.action_space = spaces.Discrete(6)
         #self.observation_space = spaces.Discrete(1000)
-        self.observation_space = spaces.Box(0, 255, [10, 10, 14])
+        self.observation_space = spaces.Box(0, 255, [10, 10, 12])
 
 
     def step(self, action):
@@ -71,9 +71,10 @@ class BasicEnv(gym.Env):
         #state = stationID
         #state = state_final_line[1]
         #state = numpy.array(state_final_line[1], state_final_line[2]).astype(numpy.float32)
-        state = numpy.array([state_final_line[1], state_final_line[2],state_final_line[3], state_final_line[4], state_final_line[5], state_final_line[6],
+        state = numpy.array([state_final_line[1], state_final_line[2],
+                             state_final_line[3], state_final_line[4], state_final_line[5], state_final_line[6], state_final_line[7],
                              state_final_line[8],state_final_line[9], state_final_line[10],
-                             state_final_line[11], state_final_line[12], state_final_line[13], state_final_line[14], state_final_line[15]])
+                             state_final_line[11], state_final_line[12]])
 
         #state = numpy.array([state_final_line[1], state_final_line[2], state_final_line[3]])
 
@@ -93,7 +94,7 @@ class BasicEnv(gym.Env):
 
         #LT_nor = - (LeadTime - 40000) only for leadtime9, wrong test
 
-        LT_nor = - (LeadTime - 53000)
+        LT_nor = - (LeadTime - 21000)
 
         reward = LT_nor
 
@@ -169,9 +170,9 @@ if not os.path.exists(log_dir):
 env = Monitor(env, log_dir)
 
 
-model = DQN("MlpPolicy", env, verbose=1,tensorboard_log=log_dir,learning_rate= 0.2, learning_starts=200)
+model = DQN("MlpPolicy", env, verbose=1,tensorboard_log=log_dir,learning_rate= 0.1, learning_starts=2000)
 callback = SaveOnBestTrainingRewardCallback(check_freq=100, log_dir=log_dir)
-timesteps = 1000
+timesteps = 10000
 model.learn(total_timesteps=timesteps, callback=callback)
 
 plot_results([log_dir], timesteps, results_plotter.X_TIMESTEPS, "facts_model_plot")
