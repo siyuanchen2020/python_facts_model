@@ -71,10 +71,30 @@ class BasicEnv(gym.Env):
         #state = stationID
         #state = state_final_line[1]
         #state = numpy.array(state_final_line[1], state_final_line[2]).astype(numpy.float32)
-        state = numpy.array([state_final_line[1], state_final_line[2],
+
+        # normalize the input state within [0,1]
+        # approach: MIN-MAX normalization
+        a = (state_final_line[1] - 2)/(3-2)
+        b = (state_final_line[2] - 0)/(5-0)
+        c = (state_final_line[3] - 600)/(2000-600)
+        d = (state_final_line[4] - 2400)/(10000-2400)
+        e = (state_final_line[5] - 650)/(52500-650)
+        f = (state_final_line[6] - (-5600))/(44200 - (-5600))
+        g = (state_final_line[7] - (-0.6))/(32-(-0.6))
+        h = (state_final_line[8] - 2700)/(6700-2700)
+        i = (state_final_line[9] - 480)/(25100-480)
+        j = (state_final_line[10] - 5600)/(32000-5600)
+        k = (state_final_line[11] - 0)/(5-0)
+        l = (state_final_line[12] - 0)/(5-0)
+
+        """state = numpy.array([state_final_line[1], state_final_line[2],
                              state_final_line[3], state_final_line[4], state_final_line[5], state_final_line[6], state_final_line[7],
                              state_final_line[8],state_final_line[9], state_final_line[10],
-                             state_final_line[11], state_final_line[12]])
+                             state_final_line[11], state_final_line[12]])"""
+        """state = numpy.array([state_final_line[1], state_final_line[2],
+                             state_final_line[7],
+                             state_final_line[11], state_final_line[12]])"""
+        state = numpy.array(a,b,c,d,e,f,g,h,i,j,k,l)
 
         #state = numpy.array([state_final_line[1], state_final_line[2], state_final_line[3]])
 
@@ -86,15 +106,8 @@ class BasicEnv(gym.Env):
 
         #reward = - tardiness
 
-
-        #normalize LeadTime
-        #LT_nor = - (LeadTime - 51435.777)
-
-        #new normalization
-
-        #LT_nor = - (LeadTime - 40000) only for leadtime9, wrong test
-
-        LT_nor = - (LeadTime - 21000)
+        # LT_nor = - (LeadTime - 21000) test123
+        LT_nor = - (LeadTime - 21153.87)
 
         reward = LT_nor
 
@@ -172,7 +185,7 @@ env = Monitor(env, log_dir)
 
 model = DQN("MlpPolicy", env, verbose=1,tensorboard_log=log_dir,learning_rate= 0.1, learning_starts=2000)
 callback = SaveOnBestTrainingRewardCallback(check_freq=100, log_dir=log_dir)
-timesteps = 10000
+timesteps = 100
 model.learn(total_timesteps=timesteps, callback=callback)
 
 plot_results([log_dir], timesteps, results_plotter.X_TIMESTEPS, "facts_model_plot")
