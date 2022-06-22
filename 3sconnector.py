@@ -94,7 +94,7 @@ class BasicEnv(gym.Env):
         """state = numpy.array([state_final_line[1], state_final_line[2],
                              state_final_line[7],
                              state_final_line[11], state_final_line[12]])"""
-        state = numpy.array(a,b,c,d,e,f,g,h,i,j,k,l)
+        state = numpy.array([a,b,c,d,e,f,g,h,i,j,k,l])
 
         #state = numpy.array([state_final_line[1], state_final_line[2], state_final_line[3]])
 
