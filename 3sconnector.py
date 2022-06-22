@@ -74,18 +74,18 @@ class BasicEnv(gym.Env):
 
         # normalize the input state within [0,1]
         # approach: MIN-MAX normalization
-        a = (state_final_line[1] - 2)/(3-2)
-        b = (state_final_line[2] - 0)/(5-0)
-        c = (state_final_line[3] - 600)/(2000-600)
-        d = (state_final_line[4] - 2400)/(10000-2400)
-        e = (state_final_line[5] - 650)/(52500-650)
-        f = (state_final_line[6] - (-5600))/(44200 - (-5600))
-        g = (state_final_line[7] - (-0.6))/(32-(-0.6))
-        h = (state_final_line[8] - 2700)/(6700-2700)
-        i = (state_final_line[9] - 480)/(25100-480)
-        j = (state_final_line[10] - 5600)/(32000-5600)
-        k = (state_final_line[11] - 0)/(5-0)
-        l = (state_final_line[12] - 0)/(5-0)
+        a = (float(state_final_line[1]) - 2)/(3-2)
+        b = (float(state_final_line[2]) - 0)/(5-0)
+        c = (float(state_final_line[3]) - 600)/(2000-600)
+        d = (float(state_final_line[4]) - 2400)/(10000-2400)
+        e = (float(state_final_line[5]) - 650)/(52500-650)
+        f = (float(state_final_line[6]) - (-5600))/(44200 - (-5600))
+        g = (float(state_final_line[7]) - (-0.6))/(32-(-0.6))
+        h = (float(state_final_line[8]) - 2700)/(6700-2700)
+        i = (float(state_final_line[9]) - 480)/(25100-480)
+        j = (float(state_final_line[10]) - 5600)/(32000-5600)
+        k = (float(state_final_line[11]) - 0)/(5-0)
+        l = (float(state_final_line[12]) - 0)/(5-0)
 
         """state = numpy.array([state_final_line[1], state_final_line[2],
                              state_final_line[3], state_final_line[4], state_final_line[5], state_final_line[6], state_final_line[7],
