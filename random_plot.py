@@ -1,10 +1,53 @@
 import matplotlib.pyplot as plt
 import csv
+import pandas as pd
+
+#fig, ax = plt.subplots()
+
+random_data = pd.read_csv('random_state_log.csv',delimiter = ";", nrows=1893, usecols=[0,13])
+op_data = pd.read_csv('state_log.csv',delimiter = ";", nrows=1893, usecols=[0,13])
+
+random_data.set_index('StateID').plot()
+op_data.set_index('StateID').plot()
+plt.show()
 
 
-random_csv_file = open("state_log_test1.csv")
-random_csv = csv.reader(random_csv_file)
-random_csv = list(random_csv)
+
+
+"""with open("random_state_log.csv", 'r') as csvfile:
+    lines = csv.reader(csvfile, delimiter=';')
+    for row in lines:
+        x.append(row[0])
+        y.append((row[-3]))
+
+with open("state_log.csv", 'r') as csvfile:
+    lines = csv.reader(csvfile, delimiter=';')
+    for row in lines:
+        a.append(row[0])
+        b.append((row[-2]))
+
+plt.plot(a, b)
+plt.show()"""
+
+"""df = pd.read_csv('random_state_log.csv', delimiter = ";", usecols=[0,14])
+df.set_index('StateID').plot()
+plt.show()"""
+
+
+"""x = []
+y = []
+
+with open("random_state_log.csv", 'r') as csvfile:
+    lines = csv.reader(csvfile, delimiter=';')
+    for row in lines:
+        x.append(row[0])
+        y.append((row[-2]))
+print(x)
+print(y)"""
+
+
+
+"""
 length = len(random_csv)
 
 timestep = list()
@@ -24,3 +67,4 @@ for i in range(1, length):
 plt.plot(timestep, Tardiness)
 plt.savefig("plot1")
 plt.show()
+"""

@@ -23,6 +23,7 @@ state_path = 'C:\\Facts\\Developer\\DQN-Dispatcher\\dqn_state_file.csv'
 action_path = 'C:\\Facts\\Developer\\DQN-Dispatcher\\dqn_action_file.csv'
 state_file = Path(state_path)
 action_file = Path(action_path)
+LeadTime_list = []
 
 
 class BasicEnv(gym.Env):
@@ -30,7 +31,6 @@ class BasicEnv(gym.Env):
 
     def __init__(self):
         self.action_space = spaces.Discrete(6)
-        #self.observation_space = spaces.Discrete(1000)
         self.observation_space = spaces.Box(0, 255, [10, 10, 12])
 
 
@@ -107,10 +107,21 @@ class BasicEnv(gym.Env):
         #reward = - tardiness
 
         # LT_nor = - (LeadTime - 21000) test123
-        LT_nor = - (LeadTime - 21153.87)
 
-        reward = LT_nor
+        #LT_nor = - (LeadTime - 21153.87)  simple normalization
 
+        #new normalization for reward according to paper (Tt - T(q))/MAX(Tt, T(q))
+        #Tt means the average value for reward before
+        #T(q) means average value after the current timestep
+        if len(LeadTime_list) == 0:
+            Tt = 0
+        else:
+            Tt = sum(LeadTime_list) / len(LeadTime_list)
+        LeadTime_list.append(LeadTime)
+        Tq = sum(LeadTime_list)/len(LeadTime_list)
+
+
+        reward = (Tt - Tq)/max(Tt, Tq)
 
         # regardless of the action, game is done after a single step
         done = True
@@ -185,7 +196,7 @@ env = Monitor(env, log_dir)
 
 model = DQN("MlpPolicy", env, verbose=1,tensorboard_log=log_dir,learning_rate= 0.1, learning_starts=2000)
 callback = SaveOnBestTrainingRewardCallback(check_freq=100, log_dir=log_dir)
-timesteps = 100
+timesteps = 10000
 model.learn(total_timesteps=timesteps, callback=callback)
 
 plot_results([log_dir], timesteps, results_plotter.X_TIMESTEPS, "facts_model_plot")
