@@ -21,7 +21,9 @@ while True:
         f = open(action_path, 'w')
         writer = csv.writer(f)
         # now randonly generate a number between 0 and 5 to represent the action (Rule ID).
-        irand = randrange(0, 5)
+
+        #irand = randrange(0, 5)
+        irand = 2
         data = [row[0], row[1], irand]
         writer.writerow(data)
         f.close()

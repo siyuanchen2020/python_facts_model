@@ -31,7 +31,7 @@ class BasicEnv(gym.Env):
 
     def __init__(self):
         self.action_space = spaces.Discrete(6)
-        self.observation_space = spaces.Box(0, 255, [1, 1, 12])
+        self.observation_space = spaces.Box(0, 255, [1, 1, 2])
 
 
     def step(self, action):
@@ -66,15 +66,11 @@ class BasicEnv(gym.Env):
             #print(state_final_line)
             scraped.close()
         state_final_line = state_final_line.split(';')
-        #print(state_final_line)
 
-        #state = stationID
-        #state = state_final_line[1]
-        #state = numpy.array(state_final_line[1], state_final_line[2]).astype(numpy.float32)
 
         # normalize the input state within [0,1]
         # approach: MIN-MAX normalization
-        a = (float(state_final_line[1]) - 2)/(3-2)
+        """a = (float(state_final_line[1]) - 2)/(3-2)
         b = (float(state_final_line[2]) - 0)/(5-0)
         c = (float(state_final_line[3]) - 600)/(2000-600)
         d = (float(state_final_line[4]) - 2400)/(10000-2400)
@@ -85,18 +81,15 @@ class BasicEnv(gym.Env):
         i = (float(state_final_line[9]) - 480)/(25100-480)
         j = (float(state_final_line[10]) - 5600)/(32000-5600)
         k = (float(state_final_line[11]) - 0)/(5-0)
-        l = (float(state_final_line[12]) - 0)/(5-0)
+        l = (float(state_final_line[12]) - 0)/(5-0)"""
 
         """state = numpy.array([state_final_line[1], state_final_line[2],
                              state_final_line[3], state_final_line[4], state_final_line[5], state_final_line[6], state_final_line[7],
                              state_final_line[8],state_final_line[9], state_final_line[10],
                              state_final_line[11], state_final_line[12]])"""
-        """state = numpy.array([state_final_line[1], state_final_line[2],
-                             state_final_line[7],
-                             state_final_line[11], state_final_line[12]])"""
-        state = numpy.array([a,b,c,d,e,f,g,h,i,j,k,l])
 
-        #state = numpy.array([state_final_line[1], state_final_line[2], state_final_line[3]])
+        state = numpy.array([state_final_line[-4], state_final_line[-5]])
+
 
         LeadTime = state_final_line[-3]
         LeadTime = float(LeadTime)
@@ -113,14 +106,16 @@ class BasicEnv(gym.Env):
         #new normalization for reward according to paper (Tt - T(q))/MAX(Tt, T(q))
         #Tt means the average value for reward before
         #T(q) means average value after the current timestep
-        if len(LeadTime_list) == 0:
+        """if len(LeadTime_list) == 0:
             Tt = 0
         else:
             Tt = sum(LeadTime_list) / len(LeadTime_list)
         LeadTime_list.append(LeadTime)
         Tq = sum(LeadTime_list)/len(LeadTime_list)
 
-        reward = (Tt - Tq) / max(Tt, Tq)
+        reward = (Tt - Tq) / max(Tt, Tq)"""
+
+        reward = -LeadTime
 
         # regardless of the action, game is done after a single step
         done = True
@@ -186,7 +181,7 @@ class SaveOnBestTrainingRewardCallback(BaseCallback):
         return True
 
 #set log directory
-log_dir = "/tmp/gym/facts/3s"
+log_dir = "/tmp/gym/facts/3s/new"
 if not os.path.exists(log_dir):
     os.makedirs(log_dir)
 # monitor the environment
@@ -195,7 +190,7 @@ env = Monitor(env, log_dir)
 
 model = DQN("MlpPolicy", env, verbose=1,tensorboard_log=log_dir,learning_rate= 0.1, learning_starts=2000)
 callback = SaveOnBestTrainingRewardCallback(check_freq=100, log_dir=log_dir)
-timesteps = 10000
+timesteps = 50000
 model.learn(total_timesteps=timesteps, callback=callback)
 
 plot_results([log_dir], timesteps, results_plotter.X_TIMESTEPS, "facts_model_plot")
