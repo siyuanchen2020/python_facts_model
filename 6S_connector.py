@@ -24,6 +24,7 @@ action_path = 'C:\\Facts\\Developer\\DQN-Dispatcher\\dqn_action_file.csv'
 state_file = Path(state_path)
 action_file = Path(action_path)
 LeadTime_list = []
+Tardiness_list = []
 
 
 class BasicEnv(gym.Env):
@@ -31,7 +32,7 @@ class BasicEnv(gym.Env):
 
     def __init__(self):
         self.action_space = spaces.Discrete(6)
-        self.observation_space = spaces.Box(0, 255, [1, 1, 5])
+        self.observation_space = spaces.Box(0, 255, [1, 1, 6])
 
 
     def step(self, action):
@@ -83,8 +84,9 @@ class BasicEnv(gym.Env):
         k = (float(state_final_line[11]) - 0)/(5-0)
         l = (float(state_final_line[12]) - 0)/(5-0)"""
 
-        state = numpy.array([state_final_line[11], state_final_line[12],
-                             state_final_line[13], state_final_line[14], state_final_line[15]])
+        """state = numpy.array([state_final_line[11], state_final_line[12],
+                             state_final_line[13], state_final_line[14], state_final_line[15]])"""
+        state = numpy.array([state_final_line[1], state_final_line[11], state_final_line[12], state_final_line[13], state_final_line[14], state_final_line[15]])
 
 
 
@@ -109,10 +111,24 @@ class BasicEnv(gym.Env):
             Tt = sum(LeadTime_list) / len(LeadTime_list)
         LeadTime_list.append(LeadTime)
         Tq = sum(LeadTime_list)/len(LeadTime_list)
+        if Tq == 0:
+            Nor_LT = Tq / 1
+        else:
+            Nor_LT = (Tt - Tq) / max(Tt, Tq)
 
-        reward = (Tt - Tq) / max(Tt, Tq)"""
-
-        reward = -LeadTime
+        if len(Tardiness_list) == 0:
+            Tp = 0
+        else:
+            Tp = sum(Tardiness_list) / len(Tardiness_list)
+        Tardiness_list.append(tardiness)
+        Tu = sum(Tardiness_list)/len(Tardiness_list)
+        if Tu == 0:
+            Nor_Ta = Tu / 1
+        else:
+            Nor_Ta = (Tp - Tu) / min(Tp, Tu)"""
+        Nor_LT = -LeadTime/(51000)
+        Nor_Ta = -tardiness/(2800)
+        reward = 0.5*(Nor_LT) + 0.5*(Nor_Ta)
 
         # regardless of the action, game is done after a single step
         done = True
@@ -178,14 +194,14 @@ class SaveOnBestTrainingRewardCallback(BaseCallback):
         return True
 
 #set log directory
-log_dir = "/tmp/gym/facts/6s/new"
+log_dir = "/tmp/gym/facts/6s/new/nor"
 if not os.path.exists(log_dir):
     os.makedirs(log_dir)
 # monitor the environment
 env = Monitor(env, log_dir)
 
 
-model = DQN("MlpPolicy", env, verbose=1,tensorboard_log=log_dir,learning_rate= 0.1, learning_starts=2000)
+model = DQN("MlpPolicy", env, verbose=1,tensorboard_log=log_dir,learning_rate= 0.1, learning_starts=5000)
 callback = SaveOnBestTrainingRewardCallback(check_freq=100, log_dir=log_dir)
 timesteps = 10000
 model.learn(total_timesteps=timesteps, callback=callback)

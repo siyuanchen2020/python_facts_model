@@ -31,7 +31,7 @@ class BasicEnv(gym.Env):
 
     def __init__(self):
         self.action_space = spaces.Discrete(6)
-        self.observation_space = spaces.Box(0, 255, [1, 1, 2])
+        self.observation_space = spaces.Box(0, 255, [1, 1, 3])
 
 
     def step(self, action):
@@ -88,7 +88,7 @@ class BasicEnv(gym.Env):
                              state_final_line[8],state_final_line[9], state_final_line[10],
                              state_final_line[11], state_final_line[12]])"""
 
-        state = numpy.array([state_final_line[-4], state_final_line[-5]])
+        state = numpy.array([state_final_line[1], state_final_line[-4], state_final_line[-5]])
 
 
         LeadTime = state_final_line[-3]
@@ -115,7 +115,7 @@ class BasicEnv(gym.Env):
 
         reward = (Tt - Tq) / max(Tt, Tq)"""
 
-        reward = -LeadTime
+        reward = -tardiness
 
         # regardless of the action, game is done after a single step
         done = True
@@ -181,16 +181,16 @@ class SaveOnBestTrainingRewardCallback(BaseCallback):
         return True
 
 #set log directory
-log_dir = "/tmp/gym/facts/3s/new"
+log_dir = "/tmp/gym/facts/3s/new/tardiness"
 if not os.path.exists(log_dir):
     os.makedirs(log_dir)
 # monitor the environment
 env = Monitor(env, log_dir)
 
 
-model = DQN("MlpPolicy", env, verbose=1,tensorboard_log=log_dir,learning_rate= 0.1, learning_starts=2000)
+model = DQN("MlpPolicy", env, verbose=1,tensorboard_log=log_dir,learning_rate= 0.1, learning_starts=5000)
 callback = SaveOnBestTrainingRewardCallback(check_freq=100, log_dir=log_dir)
-timesteps = 50000
+timesteps = 10000
 model.learn(total_timesteps=timesteps, callback=callback)
 
 plot_results([log_dir], timesteps, results_plotter.X_TIMESTEPS, "facts_model_plot")
